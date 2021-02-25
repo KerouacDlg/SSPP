@@ -85,7 +85,7 @@ add_library(SSPathPlanner SHARED
     src/searchspace.cpp
     src/searchspacenode.cpp
     src/ssppexception.cpp
-    src/distance_heuristic.cpp
+    #src/distance_heuristic.cpp
     src/rviz_drawing_tools.cpp
     src/sensors.cpp
     )
@@ -94,39 +94,39 @@ target_link_libraries(SSPathPlanner
     ${OCTOMAP_LIBRARIES}
     )
 
-add_executable(distance_heuristic_test src/distance_heuristic_test.cpp)
-target_include_directories(distance_heuristic_test PUBLIC include ${catkin_INCLUDE_DIRS})
-add_dependencies(distance_heuristic_test ${catkin_EXPORTED_TARGETS})
-target_link_libraries(distance_heuristic_test SSPathPlanner
-    -lgmp -lmpfr
-    ${CGAL_LIBRARY}
-    ${CGAL_Core_LIBRARY}
-    ${catkin_LIBRARIES}
-    ${PCL_LIBRARIES}
-    ${rviz_visual_tools_LIBRARIES}
-    )
+#add_executable(distance_heuristic_test src/distance_heuristic_test.cpp)
+#target_include_directories(distance_heuristic_test PUBLIC include ${catkin_INCLUDE_DIRS})
+#add_dependencies(distance_heuristic_test ${catkin_EXPORTED_TARGETS})
+#target_link_libraries(distance_heuristic_test SSPathPlanner
+#    -lgmp -lmpfr
+#    ${CGAL_LIBRARY}
+#    ${CGAL_Core_LIBRARY}
+#    ${catkin_LIBRARIES}
+#    ${PCL_LIBRARIES}
+#    ${rviz_visual_tools_LIBRARIES}
+#    )
 
-add_executable(reactive_planner_test src/reactive_planner_test.cpp)
-target_include_directories(reactive_planner_test PUBLIC include ${catkin_INCLUDE_DIRS})
-add_dependencies(reactive_planner_test ${catkin_EXPORTED_TARGETS})
-target_link_libraries(reactive_planner_test SSPathPlanner
-    -lgmp -lmpfr
-    ${CGAL_LIBRARY}
-    ${CGAL_Core_LIBRARY}
-    ${catkin_LIBRARIES}
-    ${PCL_LIBRARIES}
-    ${rviz_visual_tools_LIBRARIES}
-    )
+#add_executable(reactive_planner_test src/reactive_planner_test.cpp)
+#target_include_directories(reactive_planner_test PUBLIC include ${catkin_INCLUDE_DIRS})
+#add_dependencies(reactive_planner_test ${catkin_EXPORTED_TARGETS})
+#target_link_libraries(reactive_planner_test SSPathPlanner
+#    -lgmp -lmpfr
+#    ${CGAL_LIBRARY}
+ #   ${CGAL_Core_LIBRARY}
+#    ${catkin_LIBRARIES}
+#    ${PCL_LIBRARIES}
+#    ${rviz_visual_tools_LIBRARIES}
+#    )
 
-add_executable(reactive_planner_server_node src/reactive_planner_server_node.cpp src/reactive_planner_server.cpp)
-target_include_directories(reactive_planner_server_node PUBLIC include ${catkin_INCLUDE_DIRS})
-add_dependencies(reactive_planner_server_node ${catkin_EXPORTED_TARGETS})
-target_link_libraries(reactive_planner_server_node SSPathPlanner
-    -lgmp -lmpfr
-    ${CGAL_LIBRARY}
-    ${CGAL_Core_LIBRARY}
-    ${catkin_LIBRARIES}
-    ${PCL_LIBRARIES}
-    ${rviz_visual_tools_LIBRARIES}
-    )
+#add_executable(reactive_planner_server_node src/reactive_planner_server_node.cpp src/reactive_planner_server.cpp)
+#target_include_directories(reactive_planner_server_node PUBLIC include ${catkin_INCLUDE_DIRS})
+#add_dependencies(reactive_planner_server_node ${catkin_EXPORTED_TARGETS})
+#target_link_libraries(reactive_planner_server_node SSPathPlanner
+#    -lgmp -lmpfr
+#    ${CGAL_LIBRARY}
+#    ${CGAL_Core_LIBRARY}
+#    ${catkin_LIBRARIES}
+#    ${PCL_LIBRARIES}
+#    ${rviz_visual_tools_LIBRARIES}
+ #   )
 

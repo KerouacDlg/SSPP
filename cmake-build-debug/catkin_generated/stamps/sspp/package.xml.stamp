@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<package>
+  <name>sspp</name>
+  <version>0.9.0</version>
+  <description>Search Space Path Planner</description>
+  <url type="website">https://github.com/kuri-kustar/sspp/wiki</url>
+  <maintainer email="randa.almadhoun@gmail.com">Randa Almadhoun</maintainer>
+  <author email="tarek@tarektaha.com">Tarek Taha</author>
+  <license>GPLv3</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>libpcl1-dev</build_depend>
+  <build_depend>pcl_ros</build_depend>
+  <build_depend>tf</build_depend>
+  <build_depend>tf_conversions</build_depend>
+  <build_depend>eigen_conversions</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>visualization_msgs</build_depend>
+  <build_depend>shape_msgs</build_depend>
+  <build_depend>rviz_visual_tools</build_depend>
+  <build_depend>fcl</build_depend>
+  <build_depend>mav_msgs</build_depend>
+  <build_depend>octomap_msgs</build_depend>
+  <build_depend>octomap</build_depend>
+  <build_depend>octomap_world</build_depend>
+  
+  <run_depend>roscpp</run_depend>
+  <run_depend>sensor_msgs</run_depend>
+  <run_depend>libpcl1</run_depend>
+  <run_depend>pcl_ros</run_depend>
+  <run_depend>tf</run_depend>
+  <run_depend>tf_conversions</run_depend>
+  <run_depend>eigen_conversions</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>visualization_msgs</run_depend>
+  <run_depend>octomap_world</run_depend>
+
+</package>

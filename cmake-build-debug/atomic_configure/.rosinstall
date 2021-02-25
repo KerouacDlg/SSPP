@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/seg/git_catkin_ws/src/asscpp/sspp/cmake-build-debug/devel/setup.sh

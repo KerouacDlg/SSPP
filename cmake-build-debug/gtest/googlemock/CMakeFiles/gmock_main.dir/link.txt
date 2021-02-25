@@ -1,0 +1,1 @@
+/usr/lib/ccache/c++ -fPIC -frounding-math -O3 -DNDEBUG  -shared -Wl,-soname,libgmock_main.so -o ../../lib/libgmock_main.so CMakeFiles/gmock_main.dir/src/gmock_main.cc.o  -Wl,-rpath,/home/seg/git_catkin_ws/src/asscpp/sspp/cmake-build-debug/lib ../../lib/libgmock.so ../../lib/libgtest.so -lpthread 

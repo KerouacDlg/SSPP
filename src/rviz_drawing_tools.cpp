@@ -24,7 +24,7 @@
 visualization_msgs::Marker drawLines(std::vector<geometry_msgs::Point> links, int id, int inColor, int duration, double scale)
 {
     visualization_msgs::Marker linksMarkerMsg;
-    linksMarkerMsg.header.frame_id="/map";
+    linksMarkerMsg.header.frame_id="map";
     linksMarkerMsg.header.stamp=ros::Time::now();
     linksMarkerMsg.ns = "link_marker";
     linksMarkerMsg.id = id;
@@ -73,7 +73,7 @@ visualization_msgs::Marker drawLines(std::vector<geometry_msgs::Point> links, in
 visualization_msgs::Marker drawPoints(std::vector<geometry_msgs::Point> points, int inColor, int duration)
 {
     visualization_msgs::Marker pointMarkerMsg;
-    pointMarkerMsg.header.frame_id="/map";
+    pointMarkerMsg.header.frame_id="map";
     pointMarkerMsg.header.stamp=ros::Time::now();
     pointMarkerMsg.ns="point_marker";
     pointMarkerMsg.id = 444444;
