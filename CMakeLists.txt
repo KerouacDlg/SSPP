@@ -5,6 +5,7 @@ project(sspp)
 
 set(CMAKE_BUILD_TYPE Release) #Debug or Release
 add_definitions(-std=c++11)
+add_definitions(-std=c++14)
 SET(CMAKE_CXX_FLAGS "-frounding-math" )
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Warnings
@@ -27,7 +28,7 @@ find_package(catkin REQUIRED COMPONENTS
   shape_msgs
   std_msgs
   rviz_visual_tools
-  octomap_world
+  # octomap_world
   )
 
 find_package(CGAL QUIET COMPONENTS)
@@ -58,7 +59,7 @@ include(FindPkgConfig)
 catkin_package(
    INCLUDE_DIRS include
    LIBRARIES ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES} SSPathPlanner
-   CATKIN_DEPENDS roscpp pcl_ros octomap_world
+   CATKIN_DEPENDS roscpp pcl_ros # octomap_world
 )
 
 include_directories(include

@@ -501,11 +501,7 @@ void PathPlanner::blockPath(Node *path)
     }
 }
 
-<<<<<<< HEAD
 Node *PathPlanner::startSearch(Pose startPose, bool continuous) // added continuous 
-=======
-Node *PathPlanner::startSearch(Pose startPose, bool continuous)
->>>>>>> 59e7b7ce3921d90542a9a66a071baa2285738c17
 {
     if(multiAgentSupport)
     {
@@ -530,11 +526,7 @@ Node *PathPlanner::startSearch(Pose startPose, bool continuous)
     return p;
 }
 
-<<<<<<< HEAD
 Node *PathPlanner::startSearch(Pose startPose, bool continuous, bool debug) // copied the original function and added debug
-=======
-Node *PathPlanner::startSearch(Pose startPose, bool continuous, bool debug)
->>>>>>> 59e7b7ce3921d90542a9a66a071baa2285738c17
 {
     if(multiAgentSupport)
     {
@@ -808,11 +800,7 @@ void PathPlanner::dynamicNodesGenerationAndConnection(geometry_msgs::Pose gridSt
     double maxDist = max_dist;
     double Orient_Res = Orientation_Resolution;
     this->generateRegularGrid(gridStartPose, gridSize,startRes,true,Orient_Res,true,true,minDist,maxDist);
-<<<<<<< HEAD
     std::cout<<"\nAfter regular grid, duplicats:"; checkSearchSpaceDuplications();
-=======
-    std::cout<<"\nAfter regular grid, duplicates:"; checkSearchSpaceDuplications();
->>>>>>> 59e7b7ce3921d90542a9a66a071baa2285738c17
   
     SearchSpaceNode * S =insertTempSearchSpace(robotFilteredPoses,sensorsFilteredPoses);
     std::cout<<"\nAfter Temp Space, duplicates:"; checkSearchSpaceDuplications();

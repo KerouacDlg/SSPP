@@ -256,11 +256,7 @@ Node *Astar::astarSearch(Pose start, bool continuous, bool debug)
     Eigen::Vector3f startcoords(start.p.position.x,start.p.position.y,start.p.position.z);// Added Line
     ListofNodes.push_back(startcoords); // Added Line
     // Prints out the list of nodes: 
-<<<<<<< HEAD
     // std::cout<<" the List of Nodes is = "<<ListofNodes.size()<<" nodes Long\n"; // Added line 
-=======
-    std::cout<<" the List of Nodes is = "<<ListofNodes.size()<<" nodes Long\n"; // Added line 
->>>>>>> 59e7b7ce3921d90542a9a66a071baa2285738c17
     // for (auto i = ListofNodes.begin(); i != ListofNodes.end(); ++i){ // Added line 
     //     std::cout << *i << ' '; // Added line 
     //     }
@@ -313,21 +309,13 @@ Node *Astar::astarSearch(Pose start, bool continuous, bool debug)
                 dist = Dist(current->pose.p,current->parent->pose.p); // distance between last point and current point 
                 // std::cout<<"Distance is "<<dist<<"m \n"; 
                 // Check to see if the exact position/orientation has been visited before
-<<<<<<< HEAD
                 while (dist ==0) // probably don't need this while loop for the continuous portion. 
-=======
-                while (dist ==0)
->>>>>>> 59e7b7ce3921d90542a9a66a071baa2285738c17
                 {
                     int k = 0; 
                     if (debug)
                         std::cout<<"Break 4 \n"; 
                     ClosedPt = new Node(closedList->Start);
-<<<<<<< HEAD
                     while(ClosedPt) //checks whether this specific orientation has been visited before, if repeated the next point in the OpenList is picked and distance is checked again 
-=======
-                    while(ClosedPt)
->>>>>>> 59e7b7ce3921d90542a9a66a071baa2285738c17
                     {
                         bool QTMatch = CheckRepeatPointwithOrientation(current,ClosedPt,debug); 
                         if(QTMatch)
