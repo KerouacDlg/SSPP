@@ -126,7 +126,8 @@ bool ReactivePlannerServer::plannerCallback(sspp::sspp_srv::Request& req, sspp::
 
   // Find path and visualise it
   ros::Time timer_restart = ros::Time::now();
-  SSPP::Node* path = pathPlanner->startSearch(start);
+  bool continuous;
+  SSPP::Node* path = pathPlanner->startSearch(start,continuous,debug);
   ros::Time timer_end = ros::Time::now();
   std::cout << "\nPath Finding took:" << double(timer_end.toSec() - timer_restart.toSec()) << " secs";
 

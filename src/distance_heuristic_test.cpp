@@ -107,7 +107,8 @@ int main( int argc, char **  argv)
 
     // Find path and visualise it
     ros::Time timer_restart = ros::Time::now();
-    Node * path = pathPlanner->startSearch(start);
+    bool continuous, debug; 
+    Node * path = pathPlanner->startSearch(start,continuous, debug); // Added continuous. make sure to define in the previous line. 
     ros::Time timer_end = ros::Time::now();
     std::cout<<"\nPath Finding took:"<<double(timer_end.toSec() - timer_restart.toSec())<<" secs";
 

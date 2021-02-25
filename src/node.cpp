@@ -36,6 +36,7 @@ Node :: Node ():
     coveredVolume(0.0)
 {
     parent = next = prev = NULL;
+    octree = NULL;
     cloud_filtered = pcl::PointCloud<pcl::PointXYZ>::Ptr(new pcl::PointCloud <pcl::PointXYZ>);
 }
 
@@ -45,6 +46,7 @@ Node::Node(Node *n)
   next   = n->next;
   prev   = n->prev;
   depth  = n->depth;
+  octree = n->octree;
   pose.p.position.x = n->pose.p.position.x;
   pose.p.position.y = n->pose.p.position.y;
   pose.p.position.z = n->pose.p.position.z;

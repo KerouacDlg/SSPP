@@ -87,24 +87,26 @@ void PathPlanner::setMultiAgentSupport(bool allowMultiAgentSupport)
     this->multiAgentSupport = allowMultiAgentSupport;
 }
 
-void PathPlanner::generateRegularGrid(geometry_msgs::Pose gridStartPose,geometry_msgs::Vector3 gridSize, float gridRes, bool sampleOrientations, float orientationRes, bool samplesFiltering, bool insertSearchSpace)
+void PathPlanner::generateRegularGrid(geometry_msgs::Pose gridStartPose,geometry_msgs::Vector3 gridSize,float gridRes, bool sampleOrientations, float orientationRes, bool samplesFiltering, bool insertSearchSpace, double min_dist, double max_dist)
 {
     this->gridResolution = gridRes;
     this->sampleOrientations = sampleOrientations;
     this->orientationResolution = orientationRes;
     this->samplesFiltering = samplesFiltering;
     this->insertSearchSpace = insertSearchSpace;
-    generateRegularGrid(gridStartPose,gridSize);
+    generateRegularGrid(gridStartPose,gridSize,min_dist,max_dist);
 }
 
-void PathPlanner::generateRegularGrid(geometry_msgs::Pose gridStartPose,geometry_msgs::Vector3 gridSize, float gridRes)
+void PathPlanner::generateRegularGrid(geometry_msgs::Pose gridStartPose,geometry_msgs::Vector3 gridSize, float gridRes, double min_dist, double max_dist)
 {
     this->gridResolution = gridRes;
-    generateRegularGrid(gridStartPose,gridSize);
+    generateRegularGrid(gridStartPose,gridSize,min_dist,max_dist);
 }
 
-void PathPlanner::generateRegularGrid(geometry_msgs::Pose gridStartPose, geometry_msgs::Vector3 gridSize)
+void PathPlanner::generateRegularGrid(geometry_msgs::Pose gridStartPose, geometry_msgs::Vector3 gridSize, double min_dist, double max_dist)
 {
+    double minDist = min_dist;
+    double maxDist = max_dist;
     geometry_msgs::Pose pose, sensorLoc;
     geometry_msgs::PoseArray correspondingSensorPose;
     for(int j=0; j<robotSensors.size();j++)
@@ -119,11 +121,11 @@ void PathPlanner::generateRegularGrid(geometry_msgs::Pose gridStartPose, geometr
     std::cout<<"\nNumber of Orientation Samples:"<<orientationsNum<<" sample orientations?"<<sampleOrientations<<" orientation sampling resolution:"<<orientationResolution; fflush(stdout);
     int numSamples = 0;
 
-    for(double z = (gridStartPose.position.z - gridSize.z/2.0); z<=(gridStartPose.position.z + gridSize.z/2.0); z+=gridResolution)
+    for(double z = (gridStartPose.position.z - gridSize.z/2.0); z<=(gridStartPose.position.z + gridSize.z); z+=gridResolution)
     {
-      for(double x = (gridStartPose.position.x - gridSize.x/2.0); x<=(gridStartPose.position.x + gridSize.x/2.0); x+=gridResolution)
+      for(double x = (gridStartPose.position.x - gridSize.x/2.0); x<=(gridStartPose.position.x + gridSize.x); x+=gridResolution)
       {
-        for(double y = (gridStartPose.position.y - gridSize.y/2.0); y<=(gridStartPose.position.y + gridSize.y/2.0); y+=gridResolution)
+        for(double y = (gridStartPose.position.y - gridSize.y/2.0); y<=(gridStartPose.position.y + gridSize.y); y+=gridResolution)
         {
           pose.position.z=z;
           pose.position.y=y;
@@ -157,7 +159,7 @@ void PathPlanner::generateRegularGrid(geometry_msgs::Pose gridStartPose, geometr
                 // it is also affected by the decrement step of the dynamic sampling
                 double desiredMaxDepth = 6.9; //meters
                 double maxErrorThresh = 0.0000285 * desiredMaxDepth * desiredMaxDepth; //meters squared (this equation with the constant 0.0000285 is taken from a paper that studied the accuracy of kinect sensor  )
-                if(heuristic->isFilteringConditionSatisfied(pose, correspondingSensorPose, 1, 4, globalCloud, accuracyClusters,maxErrorThresh))
+                if(heuristic->isFilteringConditionSatisfied(pose, correspondingSensorPose, minDist, maxDist, globalCloud, accuracyClusters,maxErrorThresh))
                 {
                   if(insertSearchSpace)
                   {
@@ -499,7 +501,11 @@ void PathPlanner::blockPath(Node *path)
     }
 }
 
-Node *PathPlanner::startSearch(Pose startPose)
+<<<<<<< HEAD
+Node *PathPlanner::startSearch(Pose startPose, bool continuous) // added continuous 
+=======
+Node *PathPlanner::startSearch(Pose startPose, bool continuous)
+>>>>>>> 59e7b7ce3921d90542a9a66a071baa2285738c17
 {
     if(multiAgentSupport)
     {
@@ -510,7 +516,36 @@ Node *PathPlanner::startSearch(Pose startPose)
         }
         connectNodes();
     }
-    Node *p = astarSearch(startPose);
+    Node *p = astarSearch(startPose, continuous);
+    if(multiAgentSupport)
+    {
+        paths.push_back(p);
+    }
+    else
+    {
+        //only one at any time
+        freePath();
+        paths.push_back(p);
+    }
+    return p;
+}
+
+<<<<<<< HEAD
+Node *PathPlanner::startSearch(Pose startPose, bool continuous, bool debug) // copied the original function and added debug
+=======
+Node *PathPlanner::startSearch(Pose startPose, bool continuous, bool debug)
+>>>>>>> 59e7b7ce3921d90542a9a66a071baa2285738c17
+{
+    if(multiAgentSupport)
+    {
+        disconnectNodes();
+        for(std::vector<Node*>::iterator it = paths.begin(); it!=paths.end();it++)
+        {
+            blockPath(*it);
+        }
+        connectNodes();
+    }
+    Node *p = astarSearch(startPose, continuous, debug);
     if(multiAgentSupport)
     {
         paths.push_back(p);
@@ -762,23 +797,31 @@ void PathPlanner::connectToNN(pcl::PointCloud<pcl::PointXYZ> cloudHull1, pcl::Po
     this->MAXNODES += numConnections;//searchspace->id;
 }
 
-void PathPlanner::dynamicNodesGenerationAndConnection(geometry_msgs::Pose gridStartPose, geometry_msgs::Vector3 gridSize, double startRes, double resDecrement)
+void PathPlanner::dynamicNodesGenerationAndConnection(geometry_msgs::Pose gridStartPose, geometry_msgs::Vector3 gridSize, double startRes, double resDecrement,double min_dist, double max_dist, double Orientation_Resolution, double regGridConRad)
 {
 
     //TODO::Change this LOGIC !!!!
     octomap::OcTree oct(0.1);
     //discretize & filtering
     double res = startRes;
-    this->generateRegularGrid(gridStartPose, gridSize,startRes,true,45,true,true);
+    double minDist = min_dist;
+    double maxDist = max_dist;
+    double Orient_Res = Orientation_Resolution;
+    this->generateRegularGrid(gridStartPose, gridSize,startRes,true,Orient_Res,true,true,minDist,maxDist);
+<<<<<<< HEAD
     std::cout<<"\nAfter regular grid, duplicats:"; checkSearchSpaceDuplications();
-
+=======
+    std::cout<<"\nAfter regular grid, duplicates:"; checkSearchSpaceDuplications();
+>>>>>>> 59e7b7ce3921d90542a9a66a071baa2285738c17
+  
     SearchSpaceNode * S =insertTempSearchSpace(robotFilteredPoses,sensorsFilteredPoses);
-    std::cout<<"\nAfter Temp Space, duplicats:"; checkSearchSpaceDuplications();
+    std::cout<<"\nAfter Temp Space, duplicates:"; checkSearchSpaceDuplications();
 
     //connect internally
-    double connRadius = std::sqrt((res*res) + (res*res)) + 0.01;
+    double connRadius = regGridConRad;
+    // double connRadius = std::sqrt((res*res) + (res*res)) + 0.01;
     this->connectClustersInternalNodes(S,connRadius);
-    std::cout<<"\nAfter Internal Connections, duplicats:"; checkSearchSpaceDuplications();
+    std::cout<<"\nAfter Internal Connections, duplicates:"; checkSearchSpaceDuplications();
 
     freeTempSearchSpace(S);
     //find the outer points (convexs hull)
@@ -810,12 +853,13 @@ void PathPlanner::dynamicNodesGenerationAndConnection(geometry_msgs::Pose gridSt
         pcl::PointCloud<pcl::PointXYZ>::Ptr diffPtr (new pcl::PointCloud<pcl::PointXYZ>);
         double uncoveredPercent = heuristic->pointCloudDiff(globalCloudPtr,diffPtr);
         std::cout<<"points difference: "<< uncoveredPercent <<std::endl;
+
         ///////////check the difference percentage///////////////
         //it is hard to reach full coverage for some structures (ex. aircraft) feasible samples that doesn't go under z=0 are selected and also
         // the samples filtering distance affects this part
-        if(uncoveredPercent<=0.01) //termination condition
+        if(uncoveredPercent<=60.01) //termination condition
             break;
-
+     
         ///////////cluster the uncovered part into regions///////////////
         std::vector<pcl::PointCloud<pcl::PointXYZ> > clustersPointCloudVec ;
         heuristic->clusteringPointCloud(clustersPointCloudVec,diffPtr);
@@ -844,7 +888,7 @@ void PathPlanner::dynamicNodesGenerationAndConnection(geometry_msgs::Pose gridSt
                 heuristic->findClusterBB(cluster,clusterGridSize,clusterGridStart);
 
                 //discretize & filtering
-                this->generateRegularGrid(clusterGridStart, clusterGridSize,res,true,45,true,true);
+                this->generateRegularGrid(clusterGridStart, clusterGridSize,res,true,45,true,true,minDist,maxDist);
 
 
                 //connect internally
@@ -886,7 +930,7 @@ void PathPlanner::dynamicNodesGenerationAndConnection(geometry_msgs::Pose gridSt
         clustersPointCloudVec.erase(clustersPointCloudVec.begin(), clustersPointCloudVec.end());
 
     }//end of dynamic sampling loop
-    std::cout<<"\nAfter Dynamic Clustering, duplicats:"; checkSearchSpaceDuplications();
+    std::cout<<"\nAfter Dynamic Clustering, duplicates:"; checkSearchSpaceDuplications();
     std::cout<<"\n	--->>> NODES CONNECTED <<<---	Total number of connections:"<<this->MAXNODES<<std::endl;
 }
 

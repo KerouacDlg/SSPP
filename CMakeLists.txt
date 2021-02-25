@@ -3,7 +3,7 @@ project(sspp)
 #SET(CMAKE_C_COMPILER /usr/bin/gcc-4.9)
 #SET(CMAKE_CXX_COMPILER /usr/bin/g++-4.9)
 
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Release) #Debug or Release
 add_definitions(-std=c++11)
 SET(CMAKE_CXX_FLAGS "-frounding-math" )
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -57,7 +57,7 @@ include(FindPkgConfig)
 
 catkin_package(
    INCLUDE_DIRS include
-   LIBRARIES ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES}
+   LIBRARIES ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES} SSPathPlanner
    CATKIN_DEPENDS roscpp pcl_ros octomap_world
 )
 

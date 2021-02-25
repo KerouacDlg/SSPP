@@ -1,10 +1,10 @@
+<?xml version="1.0"?>
 <launch>
   <arg name="debug"       default="false" />
   <arg name="useValgrind" default="true" />
 
   <!-- Load Rviz -->
-  <node name="$(anon rviz)" pkg="rviz" type="rviz" respawn="false"
-        args="-d $(find sspp)/rviz/reactive_planner_test.rviz" output="screen">
+  <node name="$(anon rviz)" pkg="rviz" type="rviz" respawn="false" args="-d $(find sspp)/rviz/reactive_planner_test.rviz" output="screen">
   </node>
 
   <!-- Fake transform from world origin to robot origin (base) -->
@@ -75,7 +75,7 @@
       </node>
   </group>
 
-  <node pkg="pcl_ros" type="pcd_to_pointcloud" name="spawn_pcd_to_pcl" output="screen" args ="$(find sspp)/pcd/sphere_verydensed.pcd 1" >
+  <node pkg="pcl_ros" type="pcd_to_pointcloud" name="spawn_pcd_to_pcl" output="screen" args ="$(find sspp)/pcd/etihad_nowheels_nointernal_scaled_newdensed.pcd 1">
     <param name="frame_id" value="/world" />
   </node>
 

@@ -217,7 +217,7 @@ void Astar::displayOctree()
   }
 }
 
-Node *Astar::astarSearch(Pose start, bool continuous, bool debug)
+Node *Astar::astarSearch(Pose start, bool continuous)
 {
     Node *path = NULL;
     int NodesExpanded = 0;
@@ -250,24 +250,31 @@ Node *Astar::astarSearch(Pose start, bool continuous, bool debug)
     this->start.p.orientation.z = start.p.orientation.z;
     this->start.p.orientation.w = start.p.orientation.w;
 
-    if (debug)
-        std::cout<<"Break 0 \n";
-    std::vector<Eigen::Vector3f> ListofNodes; // Added Line
-    Eigen::Vector3f startcoords(start.p.position.x,start.p.position.y,start.p.position.z);// Added Line
-    ListofNodes.push_back(startcoords); // Added Line
-    // Prints out the list of nodes: 
-<<<<<<< HEAD
+    // std::vector<Eigen::Vector3i> ListofNodes; // Added Line
+    // Eigen::Vector3i startcoords(start.p.position.x,start.p.position.y,start.p.position.z);// Added Line
+    // ListofNodes.push_back(startcoords); // Added Line
+    // // Prints out the list of nodes: 
     // std::cout<<" the List of Nodes is = "<<ListofNodes.size()<<" nodes Long\n"; // Added line 
-=======
-    std::cout<<" the List of Nodes is = "<<ListofNodes.size()<<" nodes Long\n"; // Added line 
->>>>>>> 59e7b7ce3921d90542a9a66a071baa2285738c17
     // for (auto i = ListofNodes.begin(); i != ListofNodes.end(); ++i){ // Added line 
     //     std::cout << *i << ' '; // Added line 
     //     }
     // std::cout<<"\n-------------------------------------------"; // Added line 
-    
+    int DeclineCounter = 0; 
+    int GainCounter = 0;
+    double maxCov = 0;  
+
     std::cout<<"\n	--->>> Search Started <<<---"<<std::endl;
     findRoot();
+
+    std::vector<Eigen::Vector3i> ListofNodes; // Added Line
+    Eigen::Vector3i rootcoords(root->pose.p.position.x,root->pose.p.position.y,root->pose.p.position.z);// Added Line
+    ListofNodes.push_back(rootcoords); // Added Line
+     // Prints out the list of nodes: 
+    std::cout<<" the List of Nodes is = "<<ListofNodes.size()<<" nodes Long\n"; // Added line 
+    for (auto i = ListofNodes.begin(); i != ListofNodes.end(); ++i){ // Added line 
+        std::cout << *i << ' '; // Added line 
+        }
+
     openList->add(root,heuristic->isCost());
     // while openList is not empty
     int count = 0;
@@ -284,52 +291,191 @@ Node *Astar::astarSearch(Pose start, bool continuous, bool debug)
         current = new Node(openList->getHead());
         openList->remove(openList->getHead());
 
-        // ****Check to See if the current node is a repeat node *** 
-        if (debug){
-            std::cout<<"Break 1 ------------------------------ \n";
-            std::cout<<" the CURRENT node X= "<<current->pose.p.position.x<<"Y= "<<current->pose.p.position.y<<" Z= "<<current->pose.p.position.z<<" \n";
-
-        }
+        
         // std::cout<<" the current node f_value is = "<<current->f_value<<" \n"; // Added line 
-        Eigen::Vector3f nodecoords(current->pose.p.position.x, current->pose.p.position.y, current->pose.p.position.z); // get current nodes position
-        bool PointMatch; 
-        if (ListofNodes.size()>1)
-            PointMatch = CheckRepeatPoint(ListofNodes,nodecoords,debug);  // check to see if path has visited this point before
-        else    
-            PointMatch = false; 
+        Eigen::Vector3i nodecoords(current->pose.p.position.x, current->pose.p.position.y, current->pose.p.position.z); // get current nodes position
+        bool PointMatch = CheckRepeatPoint(ListofNodes,nodecoords);  // check to see if path has visited this point before  
+        std::cout<<" PointMatch = "<<PointMatch<<" \n"; // Added line
         tf::Quaternion curNodeQT(current->pose.p.orientation.x,current->pose.p.orientation.y,current->pose.p.orientation.z,current->pose.p.orientation.w);
         pt = new Node(current); // define a separate node "pt" that's the same as the current 
+
+        // if (closedList->Start)
+        //     ClosedPt = new Node(closedList->Start);
+        // else 
+        //     ClosedPt = new Node(root);
+
+        // ****Check to See if the current node is a repeat node *** 
+       
+        // bool PointMatch = CheckRepeatPoint(current,ClosedPt);
+        // bool PointMatch = CheckForRepeatPoints(current, ClosedPt, continuous);
+
+        double parentCoverage;
+        if (!current->parent) // if the node doesn't have a parent (it's the root), give initial values for parent coverage
+            parentCoverage = 0.0;
+        else
+            parentCoverage = current->parent->coverage;
+        // std::cout<<" GainCounter = "<<GainCounter<<" \n"; // Added line
+        // std::cout<<" DeclineCounter = "<<DeclineCounter<<" \n"; // Added line
+
+
         
-        if (debug)
-            std::cout<<"Break 2 \n"; 
+        // double DesiredCoverageGain;
+        // if (GainCounter < 8)
+        //     DesiredCoverageGain = 0.25; // Make sure to change in coverage_path_planning_heuristic.cpp line 298 as well
+        // else 
+        //     DesiredCoverageGain = 0.05; // Make sure to change in coverage_path_planning_heuristic.cpp line 298 as well
+        // bool CovGain = CheckCoverageGain(current,DesiredCoverageGain);
+ 
+        // std::cout<<" the Original Pointmatch is "<<PointMatch<<" and the original CovGain is "<<CovGain<<" The DesiredCoverageGain is: "<<DesiredCoverageGain<<"\n"; //Want 0 and 1 
+        // int j = 0; 
+        // while (PointMatch || (!CovGain)) // while there is a repeated point (pointmatch = true) and the desired coverage gain is not met (covgain = false)
+        // {
+        //     if (PointMatch)
+        //     {
+        //        Node *ptmatch =  GetNextNonRepeatedPoint(current,continuous);
+        //        current = new Node(ptmatch);
+        //     }
+        //     if (!CovGain)
+        //     {
+        //         Node *Cgain = GetNextPointwithDesiredCoverageGain(current, DesiredCoverageGain, parentCoverage);
+        //         current = new Node(Cgain);
+        //     }
+        //     ClosedPt = new Node(closedList->Start); 
+        //     PointMatch = CheckForRepeatPoints(current, ClosedPt, continuous);
+        //     CovGain = CheckCoverageGain(current,DesiredCoverageGain);
+        //     if (!CovGain) // Allows it to try 3 times before accepting a point that doesn't meet the desired coverage gain
+        //         j++;
+        //     if (j>3)
+        //         break; 
+        //     // std::cout<<" the Pointmatch is "<<PointMatch<<" and the CovGain is "<<CovGain<<" \n";
+        // }
+
+
+        // pt = new Node(current); // define a separate node "pt" that's the same as the current 
+        // if (continuous) // If continuous=true, then the path will not have any repeat points
+        // {
+        //     if (PointMatch) // If there is a matcehd point, find the next highest point in the OpenList that doesn't match any point in the ClosedList
+        //     {
+        //         int j = 0;
+        //         while(j<1) 
+        //         {
+        //             pt = pt->next; //get the next point from the OpenList
+        //             ClosedPt = new Node(closedList->Start); 
+        //             PointMatch = CheckForRepeatPoints(pt,ClosedPt,true); // checks for JUST coordinates to match
+        //             openList->remove((openList->getHead())->next); //Takes away the point from the OpenList
+        //             if(!PointMatch) // if the points do not match, add 1 to break it out of the while loop
+        //                 j++;
+        //             std::cout<<"Break Point 1... \n";
+        //         }
+        //         current = new Node(pt); //set the current node equal to the new "pt" node           
+        //     }
+        // }
+        // else // if continuous=false, the path can have repeated points with different orientatations, but it cannot go back to a point already visited
+        // {
+        //     if (PointMatch)
+        //     {
+        //                         double dist;
+        //         dist = Dist(current->pose.p,current->parent->pose.p); // distance between last point and current point 
+        //         // std::cout<<"Distance is "<<dist<<"m \n"; 
+        //         // Check to see if the exact position/orientation has been visited before
+        //         while (dist ==0) // This loop finds the next point with a unique position and orientation
+        //         {
+        //             int k = 0; 
+        //             ClosedPt = new Node(closedList->Start);
+        //             PointMatch = CheckForRepeatPoints(pt,ClosedPt,false);
+        //             if (PointMatch)
+        //                 k++;
+        //             if (k>0)
+        //             {
+        //                 current = new Node(current->next);
+        //                 dist = Dist(current->pose.p,current->parent->pose.p); // distance between last point and current point 
+        //             }
+        //             else
+        //                 break; 
+        //         }
+        //         if (!(dist == 0)) // if it's going back to a point the path has already visited (distance not 0), find the the next highest point in the openList that the path hasn't visited
+        //         {
+        //             // std::cout<<" the old coord is  = "<<current->pose.p.position.x <<" " << current->pose.p.position.y  <<" " << current->pose.p.position.z <<" \n"; // Added line
+        //             int i = 0;
+        //             while(i<1) // for some reason didn't work when it was while(PointMatch)
+        //             {
+        //                 pt = pt->next;
+        //                 ClosedPt = new Node(closedList->Start);
+        //                 PointMatch = CheckForRepeatPoints(pt,ClosedPt,false);
+        //                 Eigen::Vector3i nodecoords(pt->pose.p.position.x, pt->pose.p.position.y, pt->pose.p.position.z);
+        //                 PointMatch = CheckRepeatPoint(ListofNodes,nodecoords);
+        //                 if(!PointMatch) // add one if the points do not match to break it out of the while loop
+        //                     i++;
+        //             }
+        //             current = new Node(pt);
+        //             // std::cout<<" the NEW node f_value is = "<<current->f_value<<" \n"; // Added line
+        //             // std::cout<<" the new coord is  = "<<current->pose.p.position.x <<" " << current->pose.p.position.y  <<" " << current->pose.p.position.z <<" \n";
+        //             openList->remove((openList->getHead())->next);
+        //         }
+
+                // double dist;
+                // dist = Dist(current->pose.p,current->parent->pose.p); // distance between last point and current point
+                // while (!(dist == 0) && (PointMatch==1)) // Check to see if if it's going back to a point the path has already visited (distance not 0), if so find the the next highest point in the openList that the path hasn't visited
+                // {
+                //     // std::cout<<" the old coord was  = "<<current->pose.p.position.x <<" " << current->pose.p.position.y  <<" " << current->pose.p.position.z <<" \n"; // Added line
+                //     int i = 0;
+                //     while(i<1) 
+                //     {
+                //         pt = pt->next;
+                //         ClosedPt = new Node(closedList->Start); 
+                //         PointMatch = CheckForRepeatPoints(pt,ClosedPt,false); // checks for the coordinates AND orientation to match (it can rotate at the same point)
+                //         openList->remove((openList->getHead())->next); //Takes away the point from the OpenList
+                //         if(!PointMatch) // add one if the points do not match to break it out of the while loop
+                //             i++;
+                //         // std::cout<<"Break Point 2... \n";
+                //     }
+                //     dist = Dist(pt->pose.p,current->parent->pose.p); // distance between pt and original parent point
+                //     std::cout<<" the new coord is  = "<<current->pose.p.position.x <<" " << current->pose.p.position.y  <<" " << current->pose.p.position.z <<" \n";
+                // }
+                // if (dist==0) // While dist is zero (UAV hasn't moved, just check it's not the same orientation )
+                // {
+                //     int j = 0;
+                //     while(j<1) 
+                //     {
+                //         ClosedPt = new Node(closedList->Start); 
+                //         PointMatch = CheckForRepeatPoints(pt,ClosedPt,false); // checks for just coordinates AND orientation to match
+                //         if(!PointMatch) // if the points do not match, add 1 to break it out of the while loop
+                //             j++;
+                //         else
+                //         {
+                //             pt = pt->next; // if it was a match, try the next point in the open list
+                //             openList->remove((openList->getHead())->next); //Takes away the point from the OpenList
+                //         }
+                //         std::cout<<"Break Point 3... \n";
+                //     }
+                //     // dist = Dist(pt->pose.p,current->parent->pose.p); // check the distance between the new point and the original parent point
+                // }
+                // current = new Node(pt);
+                // std::cout<<"Break Point 4... \n";
+        //     }
+        // }
+
+
+
+
+        // *******************************************MY ORIGINAL***********************************************
         if (continuous) // If continuous=True, path will not contain any points with multiple orientations. 
         { 
             if (PointMatch) // if the point was visited, keep checking the next point in the openList
             {
-                // std::cout<<"Got a repeated point here... \n"; 
-                double dist; 
-                if (debug)
-                    std::cout<<"Break 3 \n";
+                std::cout<<"Break 1 \n"; 
+                double dist;
                 dist = Dist(current->pose.p,current->parent->pose.p); // distance between last point and current point 
                 // std::cout<<"Distance is "<<dist<<"m \n"; 
                 // Check to see if the exact position/orientation has been visited before
-<<<<<<< HEAD
-                while (dist ==0) // probably don't need this while loop for the continuous portion. 
-=======
-                while (dist ==0)
->>>>>>> 59e7b7ce3921d90542a9a66a071baa2285738c17
+                while (dist ==0) // This loop finds the next point with a unique position and orientation
                 {
                     int k = 0; 
-                    if (debug)
-                        std::cout<<"Break 4 \n"; 
+                    std::cout<<"Break 2 \n";
                     ClosedPt = new Node(closedList->Start);
-<<<<<<< HEAD
-                    while(ClosedPt) //checks whether this specific orientation has been visited before, if repeated the next point in the OpenList is picked and distance is checked again 
-=======
                     while(ClosedPt)
->>>>>>> 59e7b7ce3921d90542a9a66a071baa2285738c17
                     {
-                        bool QTMatch = CheckRepeatPointwithOrientation(current,ClosedPt,debug); 
+                        bool QTMatch = CheckRepeatPointwithOrientation(current,ClosedPt); 
                         if(QTMatch)
                             k++; // Increase the count of how many matches there are
                         ClosedPt = ClosedPt->next;
@@ -337,39 +483,25 @@ Node *Astar::astarSearch(Pose start, bool continuous, bool debug)
                     if (k>0) // if the position/orientation is repeated
                     {
                         current = new Node(current->next);
+                        std::cout<<"Break 3 \n";
                         dist = Dist(current->pose.p,current->parent->pose.p); // distance between last point and current point 
                     }
                     else
-                        break;  // not a repeated point, break out of the loop. 
+                        break;  // not a repeated point/orientation, break out of the loop. 
                 }
-                
                 // std::cout<<" the old coord is  = "<<current->pose.p.position.x <<" " << current->pose.p.position.y  <<" " << current->pose.p.position.z <<" \n"; // Added line
                 int i = 0;
-                while(i<1) // for some reason didn't work when it was while(PointMatch)
+                while(i<1) // This loop find the next Point (not point/orientation) that is unique/not visited
                 {
                     pt = pt->next;
-                    if (debug)
-                        std::cout<<"Break 5 \n";
-                    Eigen::Vector3f nodecoords(pt->pose.p.position.x, pt->pose.p.position.y, pt->pose.p.position.z);
-                    if (debug)
-                        std::cout<<"Break 5.1 \n";
-                    PointMatch = CheckRepeatPoint(ListofNodes,nodecoords,debug);
-                    if (debug)
-                        std::cout<<"Break 5.2 \n";
-                    if(!PointMatch){// add one if the points do not match to break it out of the while loop
+                    std::cout<<"Break 4 \n";
+                    Eigen::Vector3i nodecoords(pt->pose.p.position.x, pt->pose.p.position.y, pt->pose.p.position.z);
+                    PointMatch = CheckRepeatPoint(ListofNodes,nodecoords);
+                    if(!PointMatch) // add one if the points do not match to break it out of the while loop
                         i++;
-                        if (debug)
-                        std::cout<<"Break 5.3 \n";
-                    }
-                    if (!(pt->next)){ //break out of loop if it's tried every point on the open list
-                        i++; 
-                        if (debug)
-                            std::cout<<"Break 5.4 \n";
-                    }
                 }
                 current = new Node(pt);
-                if (debug)
-                        std::cout<<"Break 5.5\n";
+                std::cout<<"Break 5 \n";
                 // std::cout<<" the NEW node f_value is = "<<current->f_value<<" \n"; // Added line
                 // std::cout<<" the new coord is  = "<<current->pose.p.position.x <<" " << current->pose.p.position.y  <<" " << current->pose.p.position.z <<" \n";
                 openList->remove((openList->getHead())->next);
@@ -382,20 +514,21 @@ Node *Astar::astarSearch(Pose start, bool continuous, bool debug)
             {
                 // std::cout<<"Got a repeated point here... \n"; 
                 double dist;
-                if (debug)
-                    std::cout<<"Break 6 \n"; 
+                std::cout<<"Break 6 \n";
                 dist = Dist(current->pose.p,current->parent->pose.p); // distance between last point and current point 
+                std::cout<<"Break 6.1 \n";
+                std::cout<<"dist = "<<dist<<" \n";
                 // std::cout<<"Distance is "<<dist<<"m \n"; 
                 // Check to see if the exact position/orientation has been visited before
-                while (dist ==0)
+                while (dist ==0) // This loop finds the next point with a unique position and orientation
                 {
                     int k = 0; 
-                    if (debug)
-                        std::cout<<"Break 7 \n"; 
+                    std::cout<<"Break 7 \n";
                     ClosedPt = new Node(closedList->Start);
                     while(ClosedPt)
                     {
-                        bool QTMatch = CheckRepeatPointwithOrientation(current,ClosedPt,debug); 
+                        bool QTMatch = CheckRepeatPointwithOrientation(current,ClosedPt); 
+                        std::cout<<"Break 8 \n";
                         if(QTMatch)
                             k++; // Increase the count of how many matches there are
                         ClosedPt = ClosedPt->next;
@@ -403,6 +536,7 @@ Node *Astar::astarSearch(Pose start, bool continuous, bool debug)
                     if (k>0) // if the position/orientation is repeated
                     {
                         current = new Node(current->next);
+                        std::cout<<"Break 9 \n";
                         dist = Dist(current->pose.p,current->parent->pose.p); // distance between last point and current point 
                     }
                     else
@@ -416,32 +550,51 @@ Node *Astar::astarSearch(Pose start, bool continuous, bool debug)
                     while(i<1) // for some reason didn't work when it was while(PointMatch)
                     {
                         pt = pt->next;
-                        if (debug)
-                            std::cout<<"Break 8 \n";
-                        Eigen::Vector3f nodecoords(pt->pose.p.position.x, pt->pose.p.position.y, pt->pose.p.position.z);
-                        PointMatch = CheckRepeatPoint(ListofNodes,nodecoords,debug);
+                        std::cout<<"Break 10 \n";
+                        Eigen::Vector3i nodecoords(pt->pose.p.position.x, pt->pose.p.position.y, pt->pose.p.position.z);
+                        PointMatch = CheckRepeatPoint(ListofNodes,nodecoords);
                         if(!PointMatch) // add one if the points do not match to break it out of the while loop
                             i++;
                     }
                     current = new Node(pt);
-                    if (debug)
-                        std::cout<<"Break 9 \n";
+                    std::cout<<"Break 11 \n";
                     // std::cout<<" the NEW node f_value is = "<<current->f_value<<" \n"; // Added line
                     // std::cout<<" the new coord is  = "<<current->pose.p.position.x <<" " << current->pose.p.position.y  <<" " << current->pose.p.position.z <<" \n";
                     openList->remove((openList->getHead())->next);
                 }
             }
         }
-        if (debug)
-            std::cout<<"Break 10 \n"; 
-        Eigen::Vector3f updatednodecoords(current->pose.p.position.x, current->pose.p.position.y, current->pose.p.position.z); // get updated current nodes position (in case the original current node was a repeat)         
+        std::cout<<"Break 12 \n";
+        Eigen::Vector3i updatednodecoords(current->pose.p.position.x, current->pose.p.position.y, current->pose.p.position.z); // get updated current nodes position (in case the original current node was a repeat)         
         ListofNodes.push_back(updatednodecoords); // Add the current node to the list of point to cross check against future "current" nodes
         
+        maxCov = GetMaxCoverage(current, parentCoverage, maxCov);
+        bool decline = VerifyCoverageDecline(current,parentCoverage,maxCov);
+        if (decline)
+            DeclineCounter++; 
+        // bool gainDecline = VerifyCoverageGains(current);
+        // if (gainDecline)
+        //     GainCounter++; 
+        // std::cout<<"\n"<<"  decline :"<<decline<< " gainDecline: "<<gainDecline<<" \n";
+        bool DeclineCovMax, DeclineGainMax;
+        if ((DeclineCounter > 2))
+            DeclineCovMax = true;
+        else 
+            DeclineCovMax = false; 
+        // if (GainCounter > 10)
+        //     DeclineGainMax = true;
+        // else
+        //     DeclineGainMax = false; 
+        // DeclineCovMax = false;
+        DeclineGainMax = false; 
+        std::cout<<"Break 18 \n";
+        // std::cout<<"\n"<<"  DeclineCovMax :"<<DeclineCovMax<< " DeclineGainMax: "<<DeclineGainMax<<" \n";
+            
         // put the current node onto the closed list, ==>> already visited List
         closedList->add(current,heuristic->isCost());
 
         NodesExpanded++;
-        if ((heuristic->terminateConditionReached(current) && current!= root) || (nodesCounter==nodeToBeVisNum && nodeToBeVisNum!=0))
+        if ((heuristic->terminateConditionReached(current,DeclineCovMax,DeclineGainMax, maxCov) && current!= root) || (nodesCounter==nodeToBeVisNum && nodeToBeVisNum!=0))
         {
             //the last node in the path
             current->next = NULL;
@@ -469,7 +622,7 @@ Node *Astar::astarSearch(Pose start, bool continuous, bool debug)
             closedList->free();
             return path;
         }
-        // debug = false;
+        debug = false;
         // Create List of Children for the current NODE
         if(!(childList = makeChildrenNodes(current)))
         {
@@ -643,48 +796,37 @@ void Astar::setDebugDelay(double delay)
     this->debugDelay = delay;
 }
 
-// Added Function
-bool Astar::CheckRepeatPoint(std::vector<Eigen::Vector3f>& ListofNodes, Eigen::Vector3f nodecoords, bool debug)
+// // Added Function
+bool Astar::CheckRepeatPoint(std::vector<Eigen::Vector3i>& ListofNodes, Eigen::Vector3i nodecoords)
 {   
     int ListSize = ListofNodes.size();
-    double x = nodecoords[0];
-    double y = nodecoords[1];
-    double z = nodecoords[2];
-    if (debug)
-    {
-        std::cout<<"Break 11 \n";
-        std::cout<<" the list size is  = "<<ListSize<<" \n"; // Added line
-        std::cout<<" base coord is  = "<<x<<" " << y <<" " << z <<" \n"; // Added line
-    }
-    
+    std::cout<<" the list size is  = "<<ListSize<<" \n"; // Added line
+    int x = nodecoords[0];
+    int y = nodecoords[1];
+    int z = nodecoords[2];
+    std::cout<<" base coord is  = "<<x<<" " << y <<" " << z <<" \n"; // Added line
     bool match; 
     int i = 0; 
     while (i <=ListSize)
     {   
-        double currX = ListofNodes[i][0];
-        double currY = ListofNodes[i][1];
-        double currZ = ListofNodes[i][2];
-        if (debug)
-        {
-            std::cout<<"Break 12 \n";
-            std::cout<<" the current coord is  = "<<currX<<" " << currY <<" " << currZ <<" \n"; 
-            std::cout<<" Inside the loop, the List of Nodes is = "<<ListofNodes.size()<<" nodes Long\n"; 
-                for (auto i = ListofNodes.begin(); i != ListofNodes.end(); ++i){ 
+        int currX = ListofNodes[i][0];
+        int currY = ListofNodes[i][1];
+        int currZ = ListofNodes[i][2];
+        std::cout<<"Break 13 \n";
+        std::cout<<" the current coord is  = "<<currX<<" " << currY <<" " << currZ <<" \n"; // Added line
+        std::cout<<" Inside the loop, the List of Nodes is = "<<ListofNodes.size()<<" nodes Long\n"; // Added line 
+                for (auto i = ListofNodes.begin(); i != ListofNodes.end(); ++i){ // Added line 
                     std::cout << *i << ' '; // Added line 
                 }
-        }
-        
 
         if((x==currX) && (y==currY) && (z==currZ))
-        {    match = true;
-            if (debug)
-            std::cout<<"true \n";
-             break;
+        {   //std::cout<<"Breakpoint 1.6.5. \n"; 
+            match = true;
+            break;
         } 
         else
-        {   match = false;
-            if (debug)
-            std::cout<<"false \n";
+        {   
+            match = false;
             i++;
         }
 
@@ -698,14 +840,98 @@ bool Astar::CheckRepeatPoint(std::vector<Eigen::Vector3f>& ListofNodes, Eigen::V
     return match; 
 } 
 
+// bool Astar::CheckRepeatPoint(Node * current, Node * ClosedPt)
+// {   
+//     int x = current->pose.p.position.x;
+//     int y = current->pose.p.position.y;
+//     int z = current->pose.p.position.z;
+//     // std::cout<<" base coord is  = "<<x<<" " << y <<" " << z <<" \n"; // Added line
+//     bool match; 
+//     while (ClosedPt)
+//     {
+//         int CL_x = ClosedPt->pose.p.position.x;
+//         int CL_y = ClosedPt->pose.p.position.y;
+//         int CL_z = ClosedPt->pose.p.position.z;
+//         // std::cout<<" CLosed Point coord is  = "<<CL_x<<" " << CL_y <<" " << CL_z <<" \n"; // Added line
+//         if((x==CL_x) && (y==CL_y) && (z==CL_z))
+//         {    
+//             match = true;
+//             // std::cout<<" This node is repeated\n"; // Added line
+//             break; 
+//         } 
+//         else
+//         {
+//             match = false;
+//             // std::cout<<" This node is unique\n"; // Added line
+//         }    
+//         ClosedPt = ClosedPt->next;
+//     }
+//     return match; 
+// }    
+
 // Added Function
-bool Astar::CheckRepeatPointwithOrientation(Node * current, Node * ClosedPt, bool debug)
+bool Astar::CheckForRepeatPoints(Node * current, Node * ClosedPt, bool continuous)
 {   
-    if (debug)
-            std::cout<<"Break 13 \n";
-    double x = current->pose.p.position.x;
-    double y = current->pose.p.position.y;
-    double z = current->pose.p.position.z;
+    int x = current->pose.p.position.x;
+    int y = current->pose.p.position.y;
+    int z = current->pose.p.position.z;
+    double qtX = current->pose.p.orientation.x;
+    double qtY = current->pose.p.orientation.y;
+    double qtZ = current->pose.p.orientation.z;
+    double qtW = current->pose.p.orientation.w;
+    std::cout<<" base coord is  = "<<x<<" " << y <<" " << z <<qtX<<qtY<<qtZ<<qtW<<" \n"; // Added line
+    bool match; 
+    while (ClosedPt) // Loop through list of Closed Points, redefining each time 
+    {
+        int CL_x = ClosedPt->pose.p.position.x;
+        int CL_y = ClosedPt->pose.p.position.y;
+        int CL_z = ClosedPt->pose.p.position.z;
+        double CL_qtX = ClosedPt->pose.p.orientation.x;
+        double CL_qtY = ClosedPt->pose.p.orientation.y;
+        double CL_qtZ = ClosedPt->pose.p.orientation.z;
+        double CL_qtW = ClosedPt->pose.p.orientation.w;
+        // std::cout<<"Break Point 7... \n";
+        std::cout<<" CLosed Point coord is  = "<<CL_x<<" " << CL_y <<" " << CL_z <<CL_qtX<<CL_qtY<<CL_qtZ<<CL_qtW<<" \n"; // Added line
+
+        if (continuous==1) // if you don't want any repeat points continuous = true
+        {
+            std::cout<<"Break Point 6... \n";
+            if((x==CL_x) && (y==CL_y) && (z==CL_z)) //looking for just the coordinates to match 
+            {    
+                match = true;
+                // std::cout<<" This node is repeated\n"; // Added line
+                break; 
+            } 
+            else
+            {
+                match = false;
+                // std::cout<<" This node is unique\n"; // Added line
+            }    
+        }
+        else // continuous = false, you just don't want repeated points with the same orientation
+        {
+            std::cout<<"Break Point 7... \n";
+            if((x==CL_x) && (y==CL_y) && (z==CL_z) && (qtX==CL_qtX) && (qtY==CL_qtY) && (qtZ==CL_qtZ) && (qtW == CL_qtW))
+            {    
+                match = true;
+                break; 
+            } 
+            else
+            {   
+                match = false;
+            }
+        }
+        ClosedPt = ClosedPt->next; // move to the next point on the closed list
+    } 
+    return match; 
+}  
+
+// Added Function
+bool Astar::CheckRepeatPointwithOrientation(Node * current, Node * ClosedPt)
+{   
+    int x = current->pose.p.position.x;
+    int y = current->pose.p.position.y;
+    int z = current->pose.p.position.z;
     double qtX = current->pose.p.orientation.x;
     double qtY = current->pose.p.orientation.y;
     double qtZ = current->pose.p.orientation.z;
@@ -713,29 +939,151 @@ bool Astar::CheckRepeatPointwithOrientation(Node * current, Node * ClosedPt, boo
     // std::cout<<" base coord is  = "<<x<<" " << y <<" " << z <<" \n"; // Added line
     bool match; 
 
-    double CL_x = ClosedPt->pose.p.position.x;
-    double CL_y = ClosedPt->pose.p.position.y;
-    double CL_z = ClosedPt->pose.p.position.z;
+    int CL_x = ClosedPt->pose.p.position.x;
+    int CL_y = ClosedPt->pose.p.position.y;
+    int CL_z = ClosedPt->pose.p.position.z;
     double CL_qtX = ClosedPt->pose.p.orientation.x;
     double CL_qtY = ClosedPt->pose.p.orientation.y;
     double CL_qtZ = ClosedPt->pose.p.orientation.z;
     double CL_qtW = ClosedPt->pose.p.orientation.w;
-
+    std::cout<<"Break 14 \n";
+    // std::cout<<" CLosed Point coord is  = "<<CL_x<<" " << CL_y <<" " << CL_z <<" \n"; // Added line
     if((x==CL_x) && (y==CL_y) && (z==CL_z) && (qtX==CL_qtX) && (qtY==CL_qtY) && (qtZ==CL_qtZ) && (qtW == CL_qtW))
     {    
         match = true;
     } 
     else
-    {   match = false;
+    {   
+        match = false;
     }
-
-
-    // if(match)
-    //      std::cout<<" This node is repeated\n"; // Added line
-    // else 
-    //     std::cout<<" This node is unique\n"; // Added line
-
     return match; 
 }    
+
+Node *Astar::GetNextNonRepeatedPoint(Node * current, bool continuous)
+{
+    // ClosedPt = new Node(closedList->Start); 
+    // bool PointMatch = CheckForRepeatPoints(current, ClosedPt, continuous);
+    pt = new Node(current); 
+    int i = 0; 
+    while (i < 1)
+    {
+        ClosedPt = new Node(closedList->Start);
+        pt= new Node(pt->next);
+        bool PointMatch = CheckForRepeatPoints(pt, ClosedPt, continuous);
+        std::cout<<"Pointmatch (1=true): "<<PointMatch<<" \n"; 
+        if(!PointMatch) // add one if the points do not match to break it out of the while loop
+            i++; 
+        openList->remove((openList->getHead())->next); // Takes away the point from the OpenList
+        if (!current->next)
+        {
+            std::cout<<"Unable to Find a path that doesn't repeat points. This point will be repeated \n"; 
+            break; 
+        }
+    }
+    return pt; 
+}
+
+Node *Astar::GetNextPointwithDesiredCoverageGain(Node * current, double DesiredCoverageGain, double parentCoverage)
+{
+        // double parentCoverage;
+        // if (!current->parent) // if the node doesn't have a parent (it's the root), give initial values for parent coverage
+        //     parentCoverage = 0.0;
+        // else
+        //     parentCoverage = current->parent->coverage;
+        double coverageIncrease = current->coverage - parentCoverage;
+        double prevCovIncrease;
+        // std::cout<<" the parent coverage is = "<<parentCoverage<<" \n"; // Added line
+        if (coverageIncrease <= DesiredCoverageGain)
+        {
+            int i = 0; 
+            while ((coverageIncrease <= DesiredCoverageGain) && (current->next))
+            {
+                // std::cout<<" the original coord is  = "<<current->pose.p.position.x <<" " << current->pose.p.position.y  <<" " << current->pose.p.position.z <<" \n";
+                current = new Node(current->next);
+                // std::cout<<" the NEW coord is  = "<<current->pose.p.position.x <<" " << current->pose.p.position.y  <<" " << current->pose.p.position.z <<" \n";
+                coverageIncrease = current->coverage - parentCoverage;
+                // std::cout<<" the NEW coverage gain is = "<<coverageIncrease<<" \n"; // Added line
+                if (prevCovIncrease || (coverageIncrease <= 0))
+                {
+                    if (coverageIncrease == prevCovIncrease  || (coverageIncrease == 0))
+                    {
+                        i++;
+                        DesiredCoverageGain = DesiredCoverageGain/2; 
+                    }
+                    if (coverageIncrease < 0)
+                    {
+                        i++;
+                        i++;
+                        i++;
+                    }
+                }
+                if (i>2)
+                    break; 
+                prevCovIncrease = coverageIncrease;
+            } 
+        }
+        return current; 
+}
+
+bool Astar::CheckCoverageGain(Node *current, double DesiredCoverageGain)
+{
+    double parentCoverage;
+    if (!current->parent) // if the node doesn't have a parent (it's the root), give initial values for parent coverage
+        parentCoverage = 0.0;
+    else
+        parentCoverage = current->parent->coverage;
+    double coverageIncrease = current->coverage - parentCoverage;
+    if (coverageIncrease <= DesiredCoverageGain)
+        return false;
+    else
+        return true;  
+}
+
+double Astar::GetMaxCoverage(Node *node, double parentCoverage, double maxCov)
+{
+    // std::cout<<" the old MAX coverage is = "<<maxCov<<" \n"; // Added line
+    // std::cout<<" the Parent coverage is = "<<parCov<<" \n"; // Added line
+    // std::cout<<" the Current coverage is = "<<node->coverage<<" \n"; // Added line
+    std::cout<<"Break 16 \n";
+    if ((node->coverage > parentCoverage) && (node->coverage > maxCov)) 
+        maxCov = node->coverage;
+    else 
+        maxCov = maxCov;
+    // std::cout<<" the new MAX coverage is = "<<maxCov<<" \n"; // Added line
+    return maxCov; 
+}
+
+bool Astar::VerifyCoverageDecline(Node *node, double parentCoverage, double maxCov)
+{
+    double parCov = parentCoverage;
+    bool decline; 
+    if (node->coverage < maxCov) // return TRUE if there is a decline
+    {
+        decline = true;  
+    }
+    else
+        decline = false; 
+    return decline; 
+}
+
+bool Astar::VerifyCoverageGains(Node *node)
+{
+    double parCov;
+    bool gainDecline; 
+    if (!node->parent) // if the node doesn't have a parent (it's the root), give initial values for parent coverage and max coverage
+    {
+        parCov = 0.0;
+    }
+    else
+        parCov = node->parent->coverage;
+    // Define max coverage as the current node's coverage if it's more than it's parent's coverage and more than the current max coverage
+    if ((node->coverage-parCov) <= 0.25)
+    {
+        gainDecline = true; 
+    }
+    else
+        gainDecline = false;
+    return gainDecline; 
+}
 
 }

@@ -66,7 +66,7 @@ public:
     Pose start;
     int globalcount;
     Robot *robot;
-    Node *root, *dest, *current, *childList, *curChild, *q, *p;
+    Node *root, *dest, *current, *childList, *curChild, *q, *p, *pt, *ClosedPt, *ptmatch, *Cgain;
     LList *openList,*closedList;
     vector <Tree> tree;
     void freeNode   (Node *);
@@ -74,7 +74,7 @@ public:
     void setProgressDisplayFrequency(int progressDisplayFrequency);
     void setDebugDelay(double delay);
     int progressDisplayFrequency;
-    Node*  astarSearch(Pose start);
+    Node*  astarSearch(Pose start, bool continuous=false, bool debug = false);
     Node*  tempChildList;
     double debugDelay;
     int globalID;
@@ -85,7 +85,17 @@ public:
     ros::Publisher branchPub;
     ros::Publisher octomapChildPub;
     int nodeToBeVisNum, nodesCounter;
-
+    std::vector<Eigen::Vector3f> ListofNodes; // Added Line
+    bool CheckRepeatPoint(std::vector<Eigen::Vector3f>& ListofNodes, Eigen::Vector3f nodecoords, bool debug);// Added Line
+    // bool CheckRepeatPoint(Node * current, Node * ClosedPt);
+    bool CheckRepeatPointwithOrientation(Node * current, Node * ClosedPt, bool debug); //added line 
+    // Node* GetNextNonRepeatedPoint(Node * current, bool continuous=false);
+    // Node* GetNextPointwithDesiredCoverageGain(Node * current, double DesiredCoverageGain,double parentCoverage);
+    // bool CheckCoverageGain(Node *current, double DesiredCoverageGain);
+    // bool CheckForRepeatPoints(Node * current, Node * ClosedPt, bool continuous);
+    // bool VerifyCoverageGains(Node *node);
+    // bool VerifyCoverageDecline(Node *node, double parentCoverage, double maxCov);
+    // double GetMaxCoverage(Node *node, double parentCoverage, double maxCov);
 };
 
 }

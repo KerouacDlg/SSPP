@@ -58,6 +58,7 @@ namespace SSPP
     {
     public :
         ros::NodeHandle nh;
+        ros::NodeHandle nh_private; // necessary to get the parameters from the launch file
         double  regGridConRadius;
     public :
         unsigned int getPlanningSteps();
@@ -68,17 +69,18 @@ namespace SSPP
         void   printPath(Node *path);
         void   printPath(int index);
         void   printLastPath();
-        void   generateRegularGrid(geometry_msgs::Pose gridStartPose, geometry_msgs::Vector3 gridSize);
-        void   generateRegularGrid(geometry_msgs::Pose gridStartPose, geometry_msgs::Vector3 gridSize, float gridRes);
-        void   generateRegularGrid(geometry_msgs::Pose gridStartPose,geometry_msgs::Vector3 gridSize, float gridRes, bool sampleOrientations=false, float orientationRes=360, bool samplesFiltering=false, bool insertSearchSpace=true);
+        void   generateRegularGrid(geometry_msgs::Pose gridStartPose, geometry_msgs::Vector3 gridSize, double min_dist, double max_dist);
+        void   generateRegularGrid(geometry_msgs::Pose gridStartPose, geometry_msgs::Vector3 gridSize, float gridRes, double min_dist, double max_dist);
+        void   generateRegularGrid(geometry_msgs::Pose gridStartPose,geometry_msgs::Vector3 gridSize, float gridRes, bool sampleOrientations=false, float orientationRes=360, bool samplesFiltering=false, bool insertSearchSpace=true, double min_dist=1.0, double max_dist=4.0);
         void   checkSearchSpaceDuplications();
         void   connectNodes();
         void   connectClustersInternalNodes(SearchSpaceNode * space, double connRadius);
-        void   dynamicNodesGenerationAndConnection(geometry_msgs::Pose gridStartPose, geometry_msgs::Vector3 gridSize, double startRes, double resDecrement); //for dynamic sampling
+        void   dynamicNodesGenerationAndConnection(geometry_msgs::Pose gridStartPose, geometry_msgs::Vector3 gridSize, double startRes, double resDecrement, double min_dist, double max_dist, double Orientation_Resolution, double regGridConRad); //for dynamic sampling
         void   connectToNN(pcl::PointCloud<pcl::PointXYZ> cloudHull1, pcl::PointCloud<pcl::PointXYZ> cloudHull2);
         void   disconnectNodes();
         void   blockPath(Node* path);
-        Node * startSearch(Pose startPose);
+        Node * startSearch(Pose startPose, bool continuous=false); //added continuous 
+        Node * startSearch(Pose startPose, bool continuous=false, bool debug =false); //added continuous 
         std::vector<geometry_msgs::Point> getConnections();
         std::vector<geometry_msgs::Point> getSearchSpace();
         void getRobotSensorPoses(geometry_msgs::PoseArray& robotPoses, std::vector<geometry_msgs::PoseArray> &sensorsPoses);

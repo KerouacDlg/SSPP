@@ -131,7 +131,7 @@ void Astar::findRoot() throw (SSPPException)
     heuristic->calculateHeuristic(root);
     root->depth = 0;
     //Translate(root->pose,start.phi);
-    std::cout<<"\n"<<"	---->>>Root is Set to be X="<<root->pose.p.position.x<<" Y="<<root->pose.p.position.y<<" Z="<<root->pose.p.position.z;
+    std::cout<<"\n"<<"  ---->>>Root is Set to be X="<<root->pose.p.position.x<<" Y="<<root->pose.p.position.y<<" Z="<<root->pose.p.position.z;
 }
 
 
@@ -256,17 +256,13 @@ Node *Astar::astarSearch(Pose start, bool continuous, bool debug)
     Eigen::Vector3f startcoords(start.p.position.x,start.p.position.y,start.p.position.z);// Added Line
     ListofNodes.push_back(startcoords); // Added Line
     // Prints out the list of nodes: 
-<<<<<<< HEAD
     // std::cout<<" the List of Nodes is = "<<ListofNodes.size()<<" nodes Long\n"; // Added line 
-=======
-    std::cout<<" the List of Nodes is = "<<ListofNodes.size()<<" nodes Long\n"; // Added line 
->>>>>>> 59e7b7ce3921d90542a9a66a071baa2285738c17
     // for (auto i = ListofNodes.begin(); i != ListofNodes.end(); ++i){ // Added line 
     //     std::cout << *i << ' '; // Added line 
     //     }
     // std::cout<<"\n-------------------------------------------"; // Added line 
     
-    std::cout<<"\n	--->>> Search Started <<<---"<<std::endl;
+    std::cout<<"\n  --->>> Search Started <<<---"<<std::endl;
     findRoot();
     openList->add(root,heuristic->isCost());
     // while openList is not empty
@@ -313,21 +309,13 @@ Node *Astar::astarSearch(Pose start, bool continuous, bool debug)
                 dist = Dist(current->pose.p,current->parent->pose.p); // distance between last point and current point 
                 // std::cout<<"Distance is "<<dist<<"m \n"; 
                 // Check to see if the exact position/orientation has been visited before
-<<<<<<< HEAD
                 while (dist ==0) // probably don't need this while loop for the continuous portion. 
-=======
-                while (dist ==0)
->>>>>>> 59e7b7ce3921d90542a9a66a071baa2285738c17
                 {
                     int k = 0; 
                     if (debug)
                         std::cout<<"Break 4 \n"; 
                     ClosedPt = new Node(closedList->Start);
-<<<<<<< HEAD
                     while(ClosedPt) //checks whether this specific orientation has been visited before, if repeated the next point in the OpenList is picked and distance is checked again 
-=======
-                    while(ClosedPt)
->>>>>>> 59e7b7ce3921d90542a9a66a071baa2285738c17
                     {
                         bool QTMatch = CheckRepeatPointwithOrientation(current,ClosedPt,debug); 
                         if(QTMatch)
@@ -446,7 +434,7 @@ Node *Astar::astarSearch(Pose start, bool continuous, bool debug)
             //the last node in the path
             current->next = NULL;
             std::cout<<"*************Cumulative distance : "<<current->distance<<"************ \n";
-            std::cout<<"\n"<<"	--->>> Goal state reached with :"<<globalID<< "nodes created and :"<<NodesExpanded<<" nodes expanded <<<---";
+            std::cout<<"\n"<<"  --->>> Goal state reached with :"<<globalID<< "nodes created and :"<<NodesExpanded<<" nodes expanded <<<---";
             fflush(stdout);
             p = current;
             path = NULL;
@@ -473,7 +461,7 @@ Node *Astar::astarSearch(Pose start, bool continuous, bool debug)
         // Create List of Children for the current NODE
         if(!(childList = makeChildrenNodes(current)))
         {
-            std::cout<<"\n	--->>> Search Ended On this Branch / We Reached a DEAD END <<<---";
+            std::cout<<"\n  --->>> Search Ended On this Branch / We Reached a DEAD END <<<---";
         }
         // insert the children into the OPEN list according to their f values
         nodesCounter++;
@@ -537,7 +525,7 @@ Node *Astar::astarSearch(Pose start, bool continuous, bool debug)
         }
     }
     closedList->free();
-    std::cout<<"\n	--->>>No Path Found<<<---";
+    std::cout<<"\n  --->>>No Path Found<<<---";
     return NULL;
 }
 
